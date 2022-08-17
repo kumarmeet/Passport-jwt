@@ -24,7 +24,9 @@ router.post("/login", (req, res, next) => {
 				if (error) return next(error);
 
 				const body = { _id: user._id, uname: user.uname };
-				const token = jwt.sign({ user: body }, "TOP_SECRET");
+				const token = jwt.sign({ user: body }, "TOP_SECRET", {
+					expiresIn: "1m",
+				});
 
 				return res.json({ token });
 			});
@@ -33,5 +35,20 @@ router.post("/login", (req, res, next) => {
 		}
 	})(req, res, next);
 });
+
+router.get(
+	"/profile",
+	passport.authenticate("jwt", { session: false }),
+	(req, res, next) => {
+		const token = req.get("Authorization").split(" ")[1];
+
+		return res.status(200).json({
+			user: req.user,
+			// token: req.query.secret_token,
+			token: token,
+			message: "Hello World!!",
+		});
+	}
+);
 
 module.exports = router;

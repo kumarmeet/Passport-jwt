@@ -1,5 +1,7 @@
 const passport = require("passport");
 const localStratergy = require("passport-local").Strategy;
+const extractJwt = require("passport-jwt").ExtractJwt;
+const jwtStratergy = require("passport-jwt").Strategy;
 
 const userData = [];
 
@@ -42,6 +44,23 @@ passport.use(
 				}
 
 				return done(null, user, { message: "Logged in Successfully" });
+			} catch (error) {
+				done(error);
+			}
+		}
+	)
+);
+
+passport.use(
+	new jwtStratergy(
+		{
+			secretOrKey: "TOP_SECRET",
+			// jwtFromRequest: extractJwt.fromUrlQueryParameter("secret_token"),
+			jwtFromRequest: extractJwt.fromAuthHeaderAsBearerToken(),
+		},
+		(token, done) => {
+			try {
+				return done(null, token.user);
 			} catch (error) {
 				done(error);
 			}
